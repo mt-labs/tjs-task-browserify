@@ -33,25 +33,72 @@ module.exports = function (gelf, name) {
 
 
 	/**
-	 * Starts a timer that logs the start and end times of the task.
+	 * Nicely formats an error message (taken from gulp.js source).
 	 */
-	function taskTimer() {
+	function formatError(e) {
+		
+		if (!e.err) {
+			return e.message;
+		}
+		
+		if (e.err.message) {
+			return e.err.message;
+		}
+		
+		return JSON.stringify(e.err);
+		
+	}
 
+
+	/**
+	 * Gets a task logger instance.
+	 */
+	function getLogger(taskName) {
+		
 		var gutil = require('gulp-util');
 		var prettyTime = require('pretty-hrtime');
-
-		var start = process.hrtime();
-
-		gutil.log('Starting', '\'' + gutil.colors.cyan(task.build) + '\'...');
-
-		return function () {
-			var time = prettyTime(process.hrtime(start));
+		
+		var startTime = process.hrtime();
+		
+		function start() {
+			
+			startTime = process.hrtime();
+			gutil.log('Starting', '\'' + gutil.colors.cyan(taskName) + '\'...');
+			
+		}
+		
+		function stop() {
+			
+			var time = prettyTime(process.hrtime(startTime));
 			gutil.log(
-				'Finished', '\'' + gutil.colors.cyan(task.build) + '\'',
+				'Finished', '\'' + gutil.colors.cyan(taskName) + '\'',
 				'after', gutil.colors.magenta(time)
 			);
-		};
+			
+		}
+		
+		function error(e) {
+			
+			var msg = formatError(e);
+			var time = prettyTime(process.hrtime(startTime));
 
+			gutil.log(
+				'\'' + gutil.colors.cyan(taskName) + '\'',
+				'errored after',
+				gutil.colors.magenta(time),
+				gutil.colors.red(msg)
+			);
+
+			gelf.notify.error(e);
+			
+		}
+		
+		return {
+			start: start,
+			stop:  stop,
+			error: error
+		};
+		
 	}
 
 
@@ -109,13 +156,21 @@ module.exports = function (gelf, name) {
 				bundleName = gutil.replaceExtension(bundleName, '.js');
 			}
 
+			var log = getLogger(task.build);
+
 			var stream = b.bundle()
+				.on('error', function(e) {
+					log.error(e);
+					this.emit('end');
+				})
 				.pipe(source(bundleName))
 			;
 
 			if (earlyExit) {
 				return stream;
 			}
+
+			log.start();
 
 			stream = stream
 				.pipe(buffer())
@@ -127,7 +182,7 @@ module.exports = function (gelf, name) {
 			;
 
 			if (forceLogging) {
-				stream.on('finish', taskTimer());
+				stream.on('finish', log.stop);
 			}
 
 			return stream;
