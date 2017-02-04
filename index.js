@@ -103,7 +103,7 @@ module.exports = function (gelf, name) {
 			if (bundleName == null) {
 				var path = require('path');
 				bundleName = path.basename(Array.isArray(config.src) ? config.src[0] : config.src);
-				bundleName = gutil.replaceExtension(bundleName, 'js');
+				bundleName = gutil.replaceExtension(bundleName, '.js');
 			}
 
 			var stream = b.bundle()
