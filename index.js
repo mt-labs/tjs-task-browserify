@@ -96,8 +96,10 @@ module.exports = function (gelf, name) {
 
 		function bundle(earlyExit, forceLogging) {
 
+			var buffer = require('vinyl-buffer');
 			var gutil = require('gulp-util');
 			var source = require('vinyl-source-stream');
+			var sourcemaps = require('gulp-sourcemaps');
 
 			var bundleName = config.concat;
 			if (bundleName == null) {
@@ -115,6 +117,9 @@ module.exports = function (gelf, name) {
 			}
 
 			stream = stream
+				.pipe(buffer())
+				.pipe(sourcemaps.init({loadMaps: true}))
+				.pipe(sourcemaps.write('./'))
 				.pipe(gelf.dest(config.dest))
 			;
 
