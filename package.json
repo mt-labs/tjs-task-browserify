@@ -20,5 +20,9 @@
     "tjs"
   ],
   "license": "MIT",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "gulp": "^3.8.0",
+    "tjs-gelf": "https://github.com/mt-labs/tjs-gelf/archive/2.2.0.tar.gz"
+  }
 }
