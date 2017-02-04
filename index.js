@@ -123,6 +123,7 @@ module.exports = function (gelf, name) {
 				.pipe(config.uglify ? uglify() : gutil.noop())
 				.pipe(sourcemaps.write('./'))
 				.pipe(gelf.dest(config.dest))
+				.pipe(gelf.notify.done(task.build))
 			;
 
 			if (forceLogging) {
