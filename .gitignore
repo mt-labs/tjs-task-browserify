@@ -17,6 +17,9 @@ $RECYCLE.BIN/
 # Node modules directory
 node_modules
 
+# Distribution directory
+/dist
+
 # Special git files
 !.gitattributes
 !.gitignore
