@@ -25,6 +25,7 @@
     "browserify": "^14.0.0",
     "browserify-shim": "git+https://github.com/mt-labs/browserify-shim#config-by-api",
     "gulp-sourcemaps": "^2.4.0",
+    "gulp-uglify": "^2.0.1",
     "gulp-util": "^2.2.0",
     "pretty-hrtime": "^0.2.0",
     "vinyl-buffer": "^1.0.0",
